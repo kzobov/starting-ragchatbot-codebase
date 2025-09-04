@@ -32,3 +32,7 @@ Thumbs.db
 
 # Claude Code
 .claude/
+
+# Local development files
+claude.local.md
+CLAUDE.local.md
