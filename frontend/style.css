@@ -326,6 +326,28 @@ header h1 {
     margin: 1rem 0;
 }
 
+/* Message content links */
+.message-content a {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: all 0.2s ease;
+}
+
+.message-content a:hover {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.message-content a:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
 /* Chat Input Container */
 .chat-input-container {
     display: flex;
@@ -634,6 +656,107 @@ details[open] .suggested-header::before {
     transform: translateX(2px);
 }
 
+/* New Chat Button */
+.new-chat-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.new-chat-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.new-chat-button:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.new-chat-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+
+/* Wiping animation */
+.new-chat-button.wiping {
+    animation: wipeEffect 0.6s ease-in-out;
+}
+
+.new-chat-button.wiping::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.3) 30%, 
+        rgba(255, 255, 255, 0.6) 50%, 
+        rgba(255, 255, 255, 0.3) 70%, 
+        transparent 100%);
+    animation: wipeSlide 0.6s ease-in-out;
+}
+
+@keyframes wipeEffect {
+    0% {
+        background: var(--primary-color);
+        transform: translateY(0) scale(1);
+    }
+    20% {
+        transform: translateY(-2px) scale(0.98);
+        background: var(--primary-hover);
+    }
+    40% {
+        transform: translateY(0) scale(1.02);
+        background: var(--primary-color);
+    }
+    60% {
+        transform: translateY(-1px) scale(0.99);
+        background: #1e40af;
+    }
+    80% {
+        transform: translateY(0) scale(1.01);
+        background: var(--primary-color);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        background: var(--primary-color);
+    }
+}
+
+@keyframes wipeSlide {
+    0% {
+        left: -100%;
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        left: 100%;
+        opacity: 0;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
@@ -715,4 +838,53 @@ details[open] .suggested-header::before {
     .sidebar {
         width: 280px;
     }
+}
+
+/* Source Link Styles */
+.source-link {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: 1px solid #2563eb;
+    display: inline-block;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 0.25rem;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.source-link:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    border-color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    cursor: pointer;
+}
+
+.source-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3), 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.source-link:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+.source-item {
+    color: var(--text-primary);
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: var(--surface-hover);
+    border: 1px solid var(--border-color);
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
