@@ -121,15 +121,15 @@ class RAGSystem:
             history = self.session_manager.get_conversation_history(session_id)
         
         try:
-            # Generate response using AI with tools
-            response = self.ai_generator.generate_response(
+            # Generate response using AI with sequential tool calling
+            response = self.ai_generator.generate_response_sequential(
                 query=prompt,
                 conversation_history=history,
                 tools=self.tool_manager.get_tool_definitions(),
                 tool_manager=self.tool_manager
             )
             
-            # Get sources from the search tool
+            # Get sources from the search tool (fallback to single-round sources)
             sources = self.tool_manager.get_last_sources()
 
             # Reset sources after retrieving them
