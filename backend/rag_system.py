@@ -120,26 +120,37 @@ class RAGSystem:
         if session_id:
             history = self.session_manager.get_conversation_history(session_id)
         
-        # Generate response using AI with tools
-        response = self.ai_generator.generate_response(
-            query=prompt,
-            conversation_history=history,
-            tools=self.tool_manager.get_tool_definitions(),
-            tool_manager=self.tool_manager
-        )
-        
-        # Get sources from the search tool
-        sources = self.tool_manager.get_last_sources()
+        try:
+            # Generate response using AI with tools
+            response = self.ai_generator.generate_response(
+                query=prompt,
+                conversation_history=history,
+                tools=self.tool_manager.get_tool_definitions(),
+                tool_manager=self.tool_manager
+            )
+            
+            # Get sources from the search tool
+            sources = self.tool_manager.get_last_sources()
 
-        # Reset sources after retrieving them
-        self.tool_manager.reset_sources()
-        
-        # Update conversation history
-        if session_id:
-            self.session_manager.add_exchange(session_id, query, response)
-        
-        # Return response with sources from tool searches
-        return response, sources
+            # Reset sources after retrieving them
+            self.tool_manager.reset_sources()
+            
+            # Update conversation history
+            if session_id:
+                self.session_manager.add_exchange(session_id, query, response)
+            
+            # Return response with sources from tool searches
+            return response, sources
+            
+        except Exception as e:
+            error_msg = f"Query processing failed: {str(e)}"
+            print(f"RAGSystem query error - Query: '{query}', Session: '{session_id}', Error: {error_msg}")
+            
+            # Reset sources in case of error
+            self.tool_manager.reset_sources()
+            
+            # Return error response
+            return "I apologize, but I encountered a technical issue while processing your query. Please try again.", []
     
     def get_course_analytics(self) -> Dict:
         """Get analytics about the course catalog"""

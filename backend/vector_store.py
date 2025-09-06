@@ -97,7 +97,9 @@ class VectorStore:
             )
             return SearchResults.from_chroma(results)
         except Exception as e:
-            return SearchResults.empty(f"Search error: {str(e)}")
+            error_msg = f"ChromaDB search failed: {str(e)}"
+            print(f"VectorStore search error - Query: '{query}', Course: '{course_name}', Lesson: {lesson_number}, Error: {error_msg}")
+            return SearchResults.empty(error_msg)
     
     def _resolve_course_name(self, course_name: str) -> Optional[str]:
         """Use vector search to find best matching course by name"""
@@ -139,25 +141,34 @@ class VectorStore:
         course_text = course.title
         
         # Build lessons metadata and serialize as JSON string
+        # Handle None values in lesson metadata as well
         lessons_metadata = []
         for lesson in course.lessons:
             lessons_metadata.append({
                 "lesson_number": lesson.lesson_number,
-                "lesson_title": lesson.title,
-                "lesson_link": lesson.lesson_link
+                "lesson_title": lesson.title or "",
+                "lesson_link": lesson.lesson_link or ""
             })
         
-        self.course_catalog.add(
-            documents=[course_text],
-            metadatas=[{
-                "title": course.title,
-                "instructor": course.instructor,
-                "course_link": course.course_link,
-                "lessons_json": json.dumps(lessons_metadata),  # Serialize as JSON string
-                "lesson_count": len(course.lessons)
-            }],
-            ids=[course.title]
-        )
+        # Prepare metadata with proper handling of None values - ChromaDB doesn't accept None
+        metadata = {
+            "title": course.title or "",
+            "instructor": course.instructor or "",  # Convert None to empty string
+            "course_link": course.course_link or "",  # Convert None to empty string
+            "lessons_json": json.dumps(lessons_metadata),  # Serialize as JSON string
+            "lesson_count": len(course.lessons)
+        }
+        
+        try:
+            self.course_catalog.add(
+                documents=[course_text],
+                metadatas=[metadata],
+                ids=[course.title or "unknown_course"]
+            )
+        except Exception as e:
+            print(f"Error adding course metadata for '{course.title}': {e}")
+            # Re-raise so calling code can handle appropriately
+            raise
     
     def add_course_content(self, chunks: List[CourseChunk]):
         """Add course content chunks to the vector store"""

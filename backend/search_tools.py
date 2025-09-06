@@ -62,28 +62,35 @@ class CourseSearchTool(Tool):
             Formatted search results or error message
         """
         
-        # Use the vector store's unified search interface
-        results = self.store.search(
-            query=query,
-            course_name=course_name,
-            lesson_number=lesson_number
-        )
-        
-        # Handle errors
-        if results.error:
-            return results.error
-        
-        # Handle empty results
-        if results.is_empty():
-            filter_info = ""
-            if course_name:
-                filter_info += f" in course '{course_name}'"
-            if lesson_number:
-                filter_info += f" in lesson {lesson_number}"
-            return f"No relevant content found{filter_info}."
-        
-        # Format and return results
-        return self._format_results(results)
+        try:
+            # Use the vector store's unified search interface
+            results = self.store.search(
+                query=query,
+                course_name=course_name,
+                lesson_number=lesson_number
+            )
+            
+            # Handle errors
+            if results.error:
+                print(f"CourseSearchTool: Search returned error - {results.error}")
+                return results.error
+            
+            # Handle empty results
+            if results.is_empty():
+                filter_info = ""
+                if course_name:
+                    filter_info += f" in course '{course_name}'"
+                if lesson_number:
+                    filter_info += f" in lesson {lesson_number}"
+                return f"No relevant content found{filter_info}."
+            
+            # Format and return results
+            return self._format_results(results)
+            
+        except Exception as e:
+            error_msg = f"Tool execution failed: {str(e)}"
+            print(f"CourseSearchTool execute error - Query: '{query}', Course: '{course_name}', Lesson: {lesson_number}, Error: {error_msg}")
+            return error_msg
     
     def _format_results(self, results: SearchResults) -> str:
         """Format search results with course and lesson context"""
