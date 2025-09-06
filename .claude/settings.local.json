@@ -1,0 +1,14 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "mcp__playwright__browser_navigate",
+      "Bash(uv run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
