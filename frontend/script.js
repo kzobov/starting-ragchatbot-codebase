@@ -262,3 +262,32 @@ async function loadCourseStats() {
         }
     }
 }
+
+// Theme Functions
+function initializeTheme() {
+    // Check for saved theme preference or default to dark
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+}
+
+function setTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    
+    // Update button icon and title
+    if (themeToggle) {
+        if (theme === 'light') {
+            themeToggle.textContent = '🌙';
+            themeToggle.title = 'Switch to dark theme';
+        } else {
+            themeToggle.textContent = '☀️';
+            themeToggle.title = 'Switch to light theme';
+        }
+    }
+}
