@@ -280,14 +280,12 @@ function setTheme(theme) {
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
     
-    // Update button icon and title
+    // Update button aria-label for accessibility
     if (themeToggle) {
         if (theme === 'light') {
-            themeToggle.textContent = '🌙';
-            themeToggle.title = 'Switch to dark theme';
+            themeToggle.setAttribute('aria-label', 'Switch to dark theme');
         } else {
-            themeToggle.textContent = '☀️';
-            themeToggle.title = 'Switch to light theme';
+            themeToggle.setAttribute('aria-label', 'Switch to light theme');
         }
     }
 }
