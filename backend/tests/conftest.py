@@ -187,6 +187,149 @@ def error_search_results():
     }
 
 
+@pytest.fixture
+def test_app():
+    """Create a test FastAPI app without static file mounts that cause issues in tests"""
+    from fastapi import FastAPI, HTTPException
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.middleware.trustedhost import TrustedHostMiddleware
+    from pydantic import BaseModel
+    from typing import List, Optional, Dict, Any
+    
+    # Create test app without static file mounting
+    app = FastAPI(title="Course Materials RAG System Test", root_path="")
+    
+    # Add middlewares
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=["*"]
+    )
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+    )
+    
+    # Pydantic models
+    class QueryRequest(BaseModel):
+        query: str
+        session_id: Optional[str] = None
+
+    class QueryResponse(BaseModel):
+        answer: str
+        sources: List[Dict[str, Any]]
+        session_id: str
+
+    class CourseStats(BaseModel):
+        total_courses: int
+        course_titles: List[str]
+    
+    # Mock RAG system for testing
+    class MockRAGSystem:
+        def __init__(self):
+            self.session_manager = Mock()
+            self.session_manager.create_session.return_value = "test-session-123"
+        
+        def query(self, query: str, session_id: str):
+            return "Test response", [{"course": "Test Course", "lesson": 1, "content": "Test content"}]
+        
+        def get_course_analytics(self):
+            return {"total_courses": 2, "course_titles": ["Python Basics", "Advanced Python"]}
+    
+    # Create mock RAG system
+    mock_rag_system = MockRAGSystem()
+    
+    # API endpoints
+    @app.post("/api/query", response_model=QueryResponse)
+    async def query_documents(request: QueryRequest):
+        try:
+            session_id = request.session_id
+            if not session_id:
+                session_id = mock_rag_system.session_manager.create_session()
+            
+            answer, sources = mock_rag_system.query(request.query, session_id)
+            
+            return QueryResponse(
+                answer=answer,
+                sources=sources,
+                session_id=session_id
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/api/courses", response_model=CourseStats)
+    async def get_course_stats():
+        try:
+            analytics = mock_rag_system.get_course_analytics()
+            return CourseStats(
+                total_courses=analytics["total_courses"],
+                course_titles=analytics["course_titles"]
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    @app.get("/")
+    async def root():
+        return {"message": "Course Materials RAG System API"}
+    
+    return app
+
+
+@pytest.fixture
+def test_client(test_app):
+    """Create a test client for the FastAPI app"""
+    from fastapi.testclient import TestClient
+    return TestClient(test_app)
+
+
+@pytest.fixture
+def mock_rag_system():
+    """Mock RAG system with controlled behavior for testing"""
+    mock_system = Mock()
+    
+    # Mock session manager
+    mock_session_manager = Mock()
+    mock_session_manager.create_session.return_value = "test-session-123"
+    mock_session_manager.get_conversation_history.return_value = "Previous context"
+    mock_session_manager.add_exchange.return_value = None
+    
+    mock_system.session_manager = mock_session_manager
+    
+    # Mock query method
+    mock_system.query.return_value = (
+        "This is a test response about Python programming.",
+        [
+            {
+                "course": "Python Basics Course",
+                "lesson": 1,
+                "content": "Python is a high-level programming language",
+                "chunk_index": 0
+            },
+            {
+                "course": "Python Basics Course", 
+                "lesson": 2,
+                "content": "Variables store data values",
+                "chunk_index": 2
+            }
+        ]
+    )
+    
+    # Mock analytics method
+    mock_system.get_course_analytics.return_value = {
+        "total_courses": 2,
+        "course_titles": ["Python Basics Course", "Advanced Python Course"]
+    }
+    
+    # Mock add_course_folder method
+    mock_system.add_course_folder.return_value = (2, 10)
+    
+    return mock_system
+
+
 @pytest.fixture(autouse=True)
 def setup_test_environment():
     """Set up test environment variables"""
