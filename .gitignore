@@ -39,3 +39,6 @@ CLAUDE.local.md
 
 # Playwright MCP files
 .playwright-mcp/
+
+
+.trees/
