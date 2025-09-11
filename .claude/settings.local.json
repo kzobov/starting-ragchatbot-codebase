@@ -9,7 +9,9 @@
       "Bash(git commit:*)",
       "mcp__playwright__browser_take_screenshot",
       "mcp__playwright__browser_click",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []
